@@ -2207,6 +2207,49 @@ Analista de Recaudación</textarea></div><div id="mailAttachmentV9" class="sourc
       }
     };
 
+    // S2 V26 - Vistos buenos con el mismo patrón visual de los anexos.
+    const s2V26Style=document.createElement('style');
+    s2V26Style.textContent=`
+      .s2-v25-approvals .s2-sgd-block-body{padding:5px 7px!important;background:#f8fbfb}
+      .s2-v26-approval-list{display:grid;gap:3px}.s2-v26-approval-item{min-width:0;height:25px;display:flex;align-items:center;gap:5px;padding:0 5px;border:1px solid #c0ced1;border-radius:5px;background:#f1f6f6;color:#3c5961;font-family:inherit;font-size:8px}
+      .s2-v26-approval-item>span{color:#34717d}.s2-v26-approval-item>b{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}.s2-v26-approval-remove{width:17px;height:17px;padding:0!important;border:0!important;border-radius:4px!important;background:transparent!important;color:#a92e40!important;font:800 11px/1 inherit!important;display:grid!important;place-items:center!important;box-shadow:none!important}.s2-v26-approval-remove:hover{background:#f9e7ea!important}
+    `;
+    document.head.appendChild(s2V26Style);
+
+    function getS2ApprovalsV26(doc){
+      if(!Array.isArray(doc.approvalsV26))doc.approvalsV26=['David Torres','Elsa Chukiano'];
+      return doc.approvalsV26
+    }
+    function removeS2ApprovalV26(index){
+      const approvals=getS2ApprovalsV26(currentS2DocumentV16());
+      approvals.splice(index,1);
+      s2IncrementState.extraViserV25=approvals.length>2;
+      renderS2DocumentManagement();
+      toast('Visto bueno retirado del documento')
+    }
+    let addingS2ApprovalV26=false;
+    addS2ViserV25=function(){
+      addingS2ApprovalV26=true;
+      openS2PersonSelectorV11('ejecutivo','Agregar visto bueno')
+    };
+    const chooseS2PersonBaseV26=chooseS2PersonV11;
+    chooseS2PersonV11=function(slot,name){
+      if(!addingS2ApprovalV26){chooseS2PersonBaseV26(slot,name);return}
+      const doc=currentS2DocumentV16(),approvals=getS2ApprovalsV26(doc);
+      addingS2ApprovalV26=false;
+      if(approvals.includes(name)){closeS2PersonSelectorV11();toast(`${name} ya está agregado como visto bueno`);return}
+      approvals.push(name);
+      s2IncrementState.selectedVisers.ejecutivo=name;
+      s2IncrementState.extraViserV25=approvals.length>2;
+      closeS2PersonSelectorV11();
+      renderS2DocumentManagement();
+      toast(`${name} agregado como visto bueno`)
+    };
+    renderS2ApprovalsV25=function(){
+      const approvals=getS2ApprovalsV26(currentS2DocumentV16());
+      return `<section class="s2-sgd-block s2-v25-approvals"><div class="s2-sgd-block-title"><span>Vistos buenos</span><button type="button" class="s2-v25-add" onclick="addS2ViserV25()" title="Agregar visto bueno" aria-label="Agregar visto bueno">＋</button></div><div class="s2-sgd-block-body"><div class="s2-v26-approval-list">${approvals.length?approvals.map((name,index)=>`<div class="s2-v26-approval-item"><span>◇</span><b>${name}</b><button type="button" class="s2-v26-approval-remove" onclick="removeS2ApprovalV26(${index})" title="Quitar ${name}" aria-label="Quitar ${name}">×</button></div>`).join(''):'<div class="s2-v26-approval-item"><b>Sin vistos buenos agregados</b></div>'}</div></div></section>`
+    };
+
   </script>
 </body>
 </html>
